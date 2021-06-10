@@ -36,7 +36,7 @@
     "@xstate/test": "^0.4.2",
     "chai": "^4.2.0",
     "cypress": "^7.5.0",
-    "eslint-plugin-cypress": "^2.11.2",
+    "eslint-plugin-cypress": "^2.11.3",
     "jest-puppeteer": "^5.0.4",
     "puppeteer": "^10.0.0"
   }

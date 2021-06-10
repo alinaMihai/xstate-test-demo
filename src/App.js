@@ -1,8 +1,9 @@
 // @ts-check
 
-import React, { useReducer, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {useMachine} from '@xstate/react';
 import styled from 'styled-components';
-
+import {feedbackMachine} from './feedbackMachine';
 function useKeyDown(key, onKeyDown) {
   useEffect(() => {
     const handler = e => {
@@ -106,6 +107,7 @@ function QuestionScreen({ onClickGood, onClickBad, onClose }) {
 }
 
 function FormScreen({ onSubmit, onClose }) {
+  const [text, setText] = useState("");
   useKeyDown('Escape', onClose);
 
   return (
@@ -114,22 +116,22 @@ function FormScreen({ onSubmit, onClose }) {
       data-testid="form-screen"
       onSubmit={e => {
         e.preventDefault();
-        const { response } = e.target.elements;
-
-        onSubmit({
-          value: response
-        });
+        onSubmit(text);
       }}
     >
       <header>Care to tell us why?</header>
       <textarea
         data-testid="response-input"
         name="response"
+        value={text}
         placeholder="Complain here"
+        onChange={(e) => setText(e.currentTarget.value)}
         onKeyDown={e => {
           if (e.key === 'Escape') {
             e.stopPropagation();
+            return;
           }
+           setText(e.currentTarget.value);
         }}
       />
       <button data-testid="submit-button">Submit</button>
@@ -154,64 +156,29 @@ function ThanksScreen({ onClose }) {
   );
 }
 
-function feedbackReducer(state, event) {
-  switch (state) {
-    case 'question':
-      switch (event.type) {
-        case 'GOOD':
-          return 'thanks';
-        case 'BAD':
-          return 'form';
-        case 'CLOSE':
-          return 'closed';
-        default:
-          return state;
-      }
-    case 'form':
-      switch (event.type) {
-        case 'SUBMIT':
-          return 'thanks';
-        case 'CLOSE':
-          return 'closed';
-        default:
-          return state;
-      }
-    case 'thanks':
-      switch (event.type) {
-        case 'CLOSE':
-          return 'closed';
-        default:
-          return state;
-      }
-    default:
-      return state;
-  }
-}
 
 function Feedback() {
-  const [state, send] = useReducer(feedbackReducer, 'question');
-
-  switch (state) {
-    case 'question':
+  const [state, send] = useMachine(feedbackMachine());
+    if(state.matches('question')){
       return (
         <QuestionScreen
-          onClickGood={() => send({ type: 'GOOD' })}
-          onClickBad={() => send({ type: 'BAD' })}
+          onClickGood={() => send({ type: 'CLICK_GOOD' })}
+          onClickBad={() => send({ type: 'CLICK_BAD' })}
           onClose={() => send({ type: 'CLOSE' })}
         />
       );
-    case 'form':
+    } else if(state.matches('form')) {
       return (
         <FormScreen
           onSubmit={value => send({ type: 'SUBMIT', value })}
           onClose={() => send({ type: 'CLOSE' })}
         />
       );
-    case 'thanks':
+    } else if (state.matches('thanks')) {
       return <ThanksScreen onClose={() => send({ type: 'CLOSE' })} />;
-    case 'closed':
+    } else {
       return null;
-  }
+    }
 }
 
 const StyledApp = styled.main`

@@ -1,48 +1,41 @@
 import { Machine } from 'xstate';
 
-export const feedbackMachine = Machine({
-  id: 'feedback',
-  initial: 'question',
+export const feedbackMachineStates = {
   states: {
     question: {
       on: {
-        CLICK_GOOD: 'acknowledge',
+        CLICK_GOOD: 'thanks',
         CLICK_BAD: 'form',
-        CLOSE: 'closed',
-        ESC: 'closed'
+        CLOSE: 'closed'
       }
     },
     form: {
-      initial: 'pending',
-      states: {
-        pending: {
-          on: {
-            SUBMIT: [
-              { target: 'submitted', cond: 'formValid' },
-              { target: 'invalid' }
-            ]
-          }
+        on: {
+          SUBMIT: [
+            {
+              target: 'thanks',
+              cond: (_, {value = ""}) => value.length > 0
+            }
+          ],
+          CLOSE: 'closed'
         },
-        invalid: {
-          on: {
-            FOCUS: 'pending'
-          }
-        },
-        submitted: {}
-      },
-      on: {
-        CLOSE: 'closed',
-        ESC: 'closed'
-      }
     },
-    acknowledge: {
+    thanks: {
       on: {
-        CLOSE: 'closed',
-        ESC: 'closed'
-      }
+        CLOSE: 'closed'
+      },
     },
     closed: {
       type: 'final'
     }
   }
+}
+
+export const feedbackMachine = (feedbackStates = feedbackMachineStates) => Machine({
+  id: 'feedback',
+  initial: 'question',
+  on: {
+    ESC: "closed",
+  },
+  ...feedbackStates
 });
