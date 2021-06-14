@@ -1,10 +1,10 @@
 import React from 'react';
 import Feedback from './App';
-import { Machine } from 'xstate';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { assert } from 'chai';
 import { createModel } from '@xstate/test';
-
+import { addTests } from './test-utils';
+import { feedbackMachine, feedbackMachineStates } from './feedbackMachine';
 // describe('feedback app', () => {
 //   afterEach(cleanup);
 
@@ -37,62 +37,28 @@ import { createModel } from '@xstate/test';
 
 // ............
 
-describe('feedback app', () => {
-  const feedbackMachine = Machine({
-    id: 'feedback',
-    initial: 'question',
-    states: {
-      question: {
-        on: {
-          CLICK_GOOD: 'thanks',
-          CLICK_BAD: 'form',
-          CLOSE: 'closed'
-        },
-        meta: {
-          test: ({ getByTestId }) => {
-            assert.ok(getByTestId('question-screen'));
-          }
-        }
-      },
-      form: {
-        on: {
-          SUBMIT: [
-            {
-              target: 'thanks',
-              cond: (_, e) => e.value.length
-            }
-          ],
-          CLOSE: 'closed'
-        },
-        meta: {
-          test: ({ getByTestId }) => {
-            assert.ok(getByTestId('form-screen'));
-          }
-        }
-      },
-      thanks: {
-        on: {
-          CLOSE: 'closed'
-        },
-        meta: {
-          test: ({ getByTestId }) => {
-            assert.ok(getByTestId('thanks-screen'));
-          }
-        }
-      },
-      closed: {
-        type: 'final',
-        meta: {
-          test: ({ queryByTestId }) => {
-            assert.isNull(queryByTestId('thanks-screen'));
-          }
-        }
-      }
-    }
-  });
+const getFeedbackTestMachine = (feedbackMachineStates) => {
+  const statesWithTests = addTests(feedbackMachineStates, {
+  question: ({ getByTestId }) => {
+    assert.ok(getByTestId('question-screen'));
+  },
+  form: ({ getByTestId }) => {
+    assert.ok(getByTestId('form-screen'));
+  },
+  thanks: ({ getByTestId }) => {
+    assert.ok(getByTestId('thanks-screen'));
+  },
+  closed: ({ queryByTestId }) => {
+    assert.isNull(queryByTestId('thanks-screen'));
+  }
+ });
+ return feedbackMachine(statesWithTests);
+}
 
-  const testModel = createModel(feedbackMachine, {
-    events: {
+describe('feedback app', () => {
+  const feedbackMachine = getFeedbackTestMachine(feedbackMachineStates);
+
+  const testModel = createModel(feedbackMachine).withEvents({
       CLICK_GOOD: ({ getByText }) => {
         fireEvent.click(getByText('Good'));
       },
@@ -114,7 +80,6 @@ describe('feedback app', () => {
         },
         cases: [{ value: 'something' }, { value: '' }]
       }
-    }
   });
 
   const testPlans = testModel.getSimplePathPlans();

@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
 import { createModel } from "@xstate/test";
-import {feedbackMachineStates, feedbackMachine} from "../../src/feedbackMachine";
-import {addTests} from "../../src/test-utils"
+import { feedbackMachineStates, feedbackMachine } from "../../src/feedbackMachine";
+import { addTests } from "../../src/test-utils"
 const getFeedbackTestMachine = (feedbackMachineStates) => {
    const statesWithTests =  addTests(feedbackMachineStates, {
      question: ({ findByTestId }) => {
