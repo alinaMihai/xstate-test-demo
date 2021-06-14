@@ -14,6 +14,12 @@ NOTE: To run the **E2E tests** on a different port: `PORT=3001 npm run e2e`
 
 ## Resources
 
+[![Edit xstate-react-calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/lucid-chebyshev-noqd4)
+
+👀 See the [demo's state machine on the XState Visualizer](https://xstate.js.org/viz/?gist=8b1e4f0d66e66802cd8d24c65f37954c)
+
+[![Screenshot of the demo state machine in the Visualizer](xstate-vis.png)](https://xstate.js.org/viz/?gist=8b1e4f0d66e66802cd8d24c65f37954c)
+
 - [Github: `@xstate/test`](https://github.com/davidkpiano/xstate/tree/master/packages/xstate-test)
 - [Slides: Write Less Tests! From Automation to Autogeneration](https://slides.com/davidkhourshid/mbt/) (React Rally 2019)
 - [Article: Model-Based Testing in React with State Machines](https://css-tricks.com/?p=286484) (CSS-Tricks)
